@@ -7,10 +7,10 @@
     "test": "test"
   },
   "dependencies": {
-    "cacheman": "^2.0.5",
-    "cacheman-redis": "^0.2.0",
+    "cacheman": "^2.2.1",
+    "cacheman-redis": "^1.1.2",
     "jsosort": "0.0.0",
-    "sha1": "^1.1.0"
+    "sha1": "^1.1.1"
   },
   "devDependencies": {
     "async": "^0.9.0",
