@@ -3,7 +3,7 @@ let Cacheman = require('cacheman')
   ;
 
 function Cache(options) {
-  this._cache = new Cacheman('cachegoose-cache', options);
+  this._cache = new Cacheman('cachegoose', options);
 }
 
 Cache.prototype.get = function(key, cb = noop) {
