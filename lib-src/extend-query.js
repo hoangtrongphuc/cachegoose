@@ -13,12 +13,21 @@ module.exports = function(mongoose, cache, debug) {
       this.op = op;
     }
 
-    let key     = this._key || this.getCacheKey()
+
+    let key
       , ttl     = this._ttl
       , isLean  = this._mongooseOptions.lean
       , model   = this.model.modelName
       , promise = new mongoose.Promise()
       ;
+
+    if (typeof this._prefix == 'string') {
+      if (this._prefix.endsWith(':')) {
+        key = `${this._prefix}${this.getCacheKey()}`;
+      } else {
+        key = this._prefix;
+      }
+    }
 
     promise.onResolve(callback);
 
@@ -46,14 +55,14 @@ module.exports = function(mongoose, cache, debug) {
     return promise;
   };
 
-  mongoose.Query.prototype.cache = function(ttl = 60, customKey = '') {
+  mongoose.Query.prototype.cache = function(ttl = 60, prefix) {
     if (typeof ttl === 'string') {
-      customKey = ttl;
+      prefix = ttl;
       ttl = 60;
     }
 
-    this._ttl = ttl;
-    this._key = customKey;
+    this._ttl    = ttl;
+    this._prefix = prefix;
     return this;
   };
 

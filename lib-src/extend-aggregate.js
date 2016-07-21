@@ -22,10 +22,18 @@ module.exports = function(mongoose, cache, debug) {
     Aggregate.prototype.exec = function(callback) {
       if (!this.hasOwnProperty('_ttl')) return exec.apply(this, arguments);
 
-      let key     = this._key || this.getCacheKey()
+      let key
         , ttl     = this._ttl
         , promise = new mongoose.Promise()
         ;
+
+      if (typeof this._prefix == 'string') {
+        if (this._prefix.endsWith(':')) {
+          key = `${this._prefix}${this.getCacheKey()}`;
+        } else {
+          key = this._prefix;
+        }
+      }
 
       promise.onResolve(callback);
 
@@ -46,14 +54,14 @@ module.exports = function(mongoose, cache, debug) {
       return promise;
     };
 
-    Aggregate.prototype.cache = function(ttl = 60, customKey = '') {
+    Aggregate.prototype.cache = function(ttl = 60, prefix) {
       if (typeof ttl === 'string') {
-        customKey = ttl;
+        prefix = ttl;
         ttl = 60;
       }
 
-      this._ttl = ttl;
-      this._key = customKey;
+      this._ttl    = ttl;
+      this._prefix = prefix;
       return this;
     };
 
