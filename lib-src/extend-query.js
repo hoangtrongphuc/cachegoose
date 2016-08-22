@@ -31,26 +31,30 @@ module.exports = function(mongoose, cache, debug) {
 
     promise.onResolve(callback);
 
-    cache.get(key, (err, cachedResults) => {
-      if (cachedResults) {
-        if (!isLean) {
-          let constructor = mongoose.model(model);
-          cachedResults = Array.isArray(cachedResults) ?
-            cachedResults.map(inflateModel(constructor)) :
-            inflateModel(constructor)(cachedResults);
-        }
+    if (ttl === 0) {
+      exec.call(this).onResolve(promise.resolve);
+    } else {
+      cache.get(key, (err, cachedResults) => {
+        if (cachedResults) {
+          if (!isLean) {
+            let constructor = mongoose.model(model);
+            cachedResults = Array.isArray(cachedResults) ?
+              cachedResults.map(inflateModel(constructor)) :
+              inflateModel(constructor)(cachedResults);
+          }
 
-        if (debug) cachedResults._fromCache = true;
-        promise.resolve(null, cachedResults);
-      } else {
-        exec.call(this).onResolve((err, results) => {
-          if (err) return promise.resolve(err);
-          cache.set(key, results, ttl, () => {
-            promise.resolve(null, results);
+          if (debug) cachedResults._fromCache = true;
+          promise.resolve(null, cachedResults);
+        } else {
+          exec.call(this).onResolve((err, results) => {
+            if (err) return promise.resolve(err);
+            cache.set(key, results, ttl, () => {
+              promise.resolve(null, results);
+            });
           });
-        });
-      }
-    });
+        }
+      });
+    }
 
     return promise;
   };
